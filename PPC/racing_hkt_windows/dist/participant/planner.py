@@ -34,13 +34,8 @@ def plan(cones: list[dict]) -> list[dict]:
     yellow = np.array([[cone["x"], cone["y"]] for cone in cones if cone["side"] == "right"])
 
     # implement a planning algorithm to generate a path from the blue and yellow cones
-
-
-
-
-
-
-
+    mid = (blue + yellow)/2
+    path = [ {"x":float(pt[0]) , "y":float(pt[1])} for pt in mid]
 
     return path
 

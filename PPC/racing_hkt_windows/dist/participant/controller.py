@@ -13,25 +13,48 @@ You must implement two functions: plan() and control()
 # ─── CONTROLLER ───────────────────────────────────────────────────────────────
 import numpy as np
 
+index =1
+def steering(path: list[dict], state: dict , target_index):
+    global index
+    tot_cones = 31
 
-
-def steering(path: list[dict], state: dict):
 
     length_of_car = 2.6
-    # Calculate steering angle based on path and vehicle state
+    steer = 0.0
+
+    car_x = state["x"]
+    car_y = state["y"]
+    car_yaw = state["yaw"]
+    target = path[target_index]
+
+    dx = target["x"] - car_x
+    dy = target["y"] - car_y
+    
+    target_angle = np.arctan2(dy, dx)
+    
+    steer = target_angle - car_yaw
+    steer=np.tan(steer)
+    t1= np.arctan2(target["y"], target["x"])
+    t2=np.arctan2(car_y,car_x)
+    if(t2<=t1 and (t1-t2 <1.57)):
+        index = index+1
+    if(index>=tot_cones):
+        index = index - tot_cones
 
 
 
 
-
-
-    steer = 0.0 # Default steer value
     # 0.5 in the max steering angle in radians (about 28.6 degrees)
     return np.clip(steer, -0.5, 0.5)
 
 
-def throttle_algorithm(target_speed, current_speed, dt):
 
+def throttle_algorithm(target_speed, current_speed, dt):
+    error = target_speed - current_speed
+    Kp = 0.5 
+    
+    # 3. Calculate the raw pedal command
+    command = Kp * error
 
 
 
@@ -41,8 +64,15 @@ def throttle_algorithm(target_speed, current_speed, dt):
     # generate the output for throttle command
     throttle = 0
     brake = 0.0
-    # clip throttle and brake to [0, 1]
+
+    if command > 0:
+        
+        throttle = command
+    elif command < 0:
+      
+        brake = -command
     return np.clip(throttle, 0.0, 1.0), np.clip(brake, 0.0, 1.0)
+
 
 def control(
     path: list[dict],
@@ -77,8 +107,12 @@ def control(
     brake = 0.0
    
     # TODO: implement your controller here
-    steer = steering(path, state)
-    target_speed = 5.0  # m/s, adjust as needed
+    
+
+    steer = steering(path, state , index)
+    if(abs(steer)<0.25):
+        target_speed=8.0
+    else:target_speed=5.0
     global integral
     throttle, brake = throttle_algorithm(target_speed, state["vx"], 0.05)
 
