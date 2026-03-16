@@ -50,11 +50,8 @@ def steering(path: list[dict], state: dict , target_index):
 
 
 def throttle_algorithm(target_speed, current_speed, dt):
-    error = target_speed - current_speed
-    Kp = 0.5 
-    
-    # 3. Calculate the raw pedal command
-    command = Kp * error
+    command = target_speed - current_speed
+    k=2/target_speed
 
 
 
@@ -67,10 +64,10 @@ def throttle_algorithm(target_speed, current_speed, dt):
 
     if command > 0:
         
-        throttle = command
+        throttle = command*k
     elif command < 0:
       
-        brake = -command
+        brake = -command*k
     return np.clip(throttle, 0.0, 1.0), np.clip(brake, 0.0, 1.0)
 
 
@@ -108,11 +105,15 @@ def control(
    
     # TODO: implement your controller here
     
-
+    prevsteer = cmd_feedback["steer"]
     steer = steering(path, state , index)
-    if(abs(steer)<0.25):
-        target_speed=8.0
-    else:target_speed=5.0
+    # if(abs(steer-prevsteer)>1.0):
+    #     steer=prevsteer
+    if(abs(steer)<0.17):
+        target_speed=50  
+    elif(abs(steer)<0.36):
+        target_speed=25.0
+    else:target_speed=6.0
     global integral
     throttle, brake = throttle_algorithm(target_speed, state["vx"], 0.05)
 

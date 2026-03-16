@@ -35,7 +35,25 @@ def plan(cones: list[dict]) -> list[dict]:
 
     # implement a planning algorithm to generate a path from the blue and yellow cones
     mid = (blue + yellow)/2
-    path = [ {"x":float(pt[0]) , "y":float(pt[1])} for pt in mid]
+    dmid=[]
+    for i in range(len(mid)-1):
+        pt = (mid[i]+mid[i+1])/2
+        dmid.append(mid[i])
+        dmid.append(pt)
+    dmid.append(mid[-1])
+    racingline=np.array(mid)
+    pull=2
+    for _ in range(pull):
+        for i in range(1, len(racingline) -1):
+            racingline[i]=(racingline[i-1]+racingline[i]+racingline[i+1])/3
+    for i in range(0,len(racingline)):
+        d= np.linalg.norm(racingline[i]-yellow[i])
+        if(d<0.8):
+            vector = (blue[i]-yellow[i])/(np.linalg.norm(blue[i]-yellow[i]))
+            racingline[i]=racingline[i]+ vector*0.5
+        
+
+    path = [ {"x":float(pt[0]) , "y":float(pt[1])} for pt in racingline]
 
     return path
 
