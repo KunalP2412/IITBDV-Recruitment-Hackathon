@@ -108,10 +108,10 @@ def control(
     # if(abs(steer-prevsteer)>1.0):
     #     steer=prevsteer
     if(abs(steer)<0.17):
-        target_speed=200 
+        target_speed=80
         offset=9 
     elif(abs(steer)<0.36):
-        target_speed=100.0
+        target_speed=50
         offset=5
     else:
         target_speed=8.0
