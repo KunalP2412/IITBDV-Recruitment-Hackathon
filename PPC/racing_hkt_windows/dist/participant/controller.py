@@ -14,9 +14,11 @@ You must implement two functions: plan() and control()
 import numpy as np
 
 index =1
+offset=4
 def steering(path: list[dict], state: dict , target_index):
     global index
-    tot_cones = 31
+    global offset
+    tot_cones = len(path)
 
 
     length_of_car = 2.6
@@ -25,26 +27,22 @@ def steering(path: list[dict], state: dict , target_index):
     car_x = state["x"]
     car_y = state["y"]
     car_yaw = state["yaw"]
-    target = path[target_index]
+    closest_idx = 0
+    min_dist = float('inf') 
+    for i, point in enumerate(path):
+        dist = (point["x"] - car_x)**2 + (point["y"] - car_y)**2
+        if dist < min_dist:
+            min_dist = dist
+            closest_idx = i
 
+    target_idx = (closest_idx + offset) % len(path) 
+    target = path[target_idx]
     dx = target["x"] - car_x
     dy = target["y"] - car_y
-    
     target_angle = np.arctan2(dy, dx)
-    
     steer = target_angle - car_yaw
-    steer=np.tan(steer)
-    t1= np.arctan2(target["y"], target["x"])
-    t2=np.arctan2(car_y,car_x)
-    if(t2<=t1 and (t1-t2 <1.57)):
-        index = index+1
-    if(index>=tot_cones):
-        index = index - tot_cones
+    steer = (steer + np.pi) % (2 * np.pi) - np.pi
 
-
-
-
-    # 0.5 in the max steering angle in radians (about 28.6 degrees)
     return np.clip(steer, -0.5, 0.5)
 
 
@@ -110,10 +108,14 @@ def control(
     # if(abs(steer-prevsteer)>1.0):
     #     steer=prevsteer
     if(abs(steer)<0.17):
-        target_speed=50  
+        target_speed=200 
+        offset=9 
     elif(abs(steer)<0.36):
-        target_speed=25.0
-    else:target_speed=6.0
+        target_speed=100.0
+        offset=5
+    else:
+        target_speed=8.0
+        offset=3
     global integral
     throttle, brake = throttle_algorithm(target_speed, state["vx"], 0.05)
 

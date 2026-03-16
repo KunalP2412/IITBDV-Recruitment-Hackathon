@@ -41,16 +41,16 @@ def plan(cones: list[dict]) -> list[dict]:
         dmid.append(mid[i])
         dmid.append(pt)
     dmid.append(mid[-1])
-    racingline=np.array(mid)
-    pull=2
+    racingline=np.array(dmid)
+    pull=4
     for _ in range(pull):
         for i in range(1, len(racingline) -1):
             racingline[i]=(racingline[i-1]+racingline[i]+racingline[i+1])/3
-    for i in range(0,len(racingline)):
-        d= np.linalg.norm(racingline[i]-yellow[i])
+    for i in range(0,len(yellow)):
+        d= np.linalg.norm(racingline[2*i]-yellow[i])
         if(d<0.8):
             vector = (blue[i]-yellow[i])/(np.linalg.norm(blue[i]-yellow[i]))
-            racingline[i]=racingline[i]+ vector*0.5
+            racingline[2*i]=racingline[2*i]+ vector*0.5
         
 
     path = [ {"x":float(pt[0]) , "y":float(pt[1])} for pt in racingline]
